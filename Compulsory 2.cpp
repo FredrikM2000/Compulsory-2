@@ -2,12 +2,14 @@
 #include <ctime>
 #include <conio.h>
 
-int pCard;
-int aCard;
-int pSum;//player sum
+int pCard;//Player current card
+int aCard;//AI current card
+int pSum;//Player sum
 int aSum;//AI sum
-int pMoney = 100;
-int aMoney = 100;
+int pMoney = 100;//Players money
+int aMoney = 100;//AI's money
+
+
 
 void pPickCard() {
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -19,6 +21,7 @@ void pPickCard() {
 		pSum += pCard;
 	}
 }
+
 void aPickCard() {
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
 	aCard = rand() % 13 + 1;
@@ -30,20 +33,17 @@ void aPickCard() {
 	}
 }
 
-//TODO: Write code easier by adding functions
-//TODO: Add some comments
-//TODO: Include AI in if ace
-
 void info() {
+	std::cout << "Information : \n\n";
 	std::cout << "-Press p to pick new card\n";
 	std::cout << "-Press s to stand\n";
-	std::cout << "-Press i to recieve info again\n";
-	std::cout << "-You will start with 100$, the minimum fee for starting a game is 10$\n";
+	std::cout << "-Press i to recieve info again\n\n";
+	std::cout << "-You and the dealer will start with 100$ each, the minimum fee for starting a game is 10$\n";
 	std::cout << "-The highest value you can gain is 10, so if you pick a knight, queen or king it will count as 10\n";
+	std::cout << "-The game will continue until either one of you don't have enough money to continue\n";
  }
 
 void ifAce(){
-	
 	int ace;
 	bool valid = true;
 	do {
@@ -78,22 +78,34 @@ int main() {
 	char input;
 	int bet;
 
-	std::cout << "Information : \n\n";
 	info();
 	std::cout << "\n";
 	system("pause");
 	system("cls");
 
 	bool game_over = false;
-
+	bool pPickNewCard = false;
+	bool aPickNewCard = true;
 	do {
+		pPickCard();
+		pPickNewCard = false;
+		if (pCard >= 10) {
+			pCard = 10;
+		}
+		std::cout << "You picked a " << pCard << "\n";
+		system("pause");
+		aPickCard();
+		if (aCard >= 10) {
+			aCard = 10;
+		}
+		aPickNewCard = true;
+		std::cout << "The dealer picked a : " << aCard << "\n\n";
 
 		bool highbet = true;
-		do {
+		do {//Betting
 			std::cout << "You have " << pMoney << "$\n";
 			std::cout << "How much do you want to bet? ";
 			std::cin >> bet;
-
 
 			if (bet > pMoney) {
 				std::cout << "You don't have that much money, try again\n\n";
@@ -116,12 +128,16 @@ int main() {
 		std::cout << "You bet " << bet << "$ \n\n";
 		std::cout << "Start game...\n";
 		system("pause");
-			
-
-		//TODO: bet money after cards drawn
 
 		do {
-			pPickCard();
+			//Doesn't pick a new card if it is the first card
+			if (pPickNewCard == false) {
+
+			}
+			else {
+				pPickCard();
+			}
+			pPickNewCard = true;
 			roundDone = false;
 			system("cls");
 			std::cout << "\t\t BLACKJACK\n\n";
@@ -131,26 +147,28 @@ int main() {
 			std::cout << "You picked a " << pCard << "\n";
 			std::cout << "Sum : " << pSum << "\n";
 
-
-			//game conditions
 			if (pSum > 21) {
 				std::cout << "Your sum is over 21, dealer wins\n\n";
 				roundDone = true;
 				aMoney += bet + bet;
 			}
 			else if (pSum <= 21) {
-
 				input = _getch();
 				//player choices
 				if (input == 'p') {
-					//pPickCard();
 
 				}
 				else if (input == 's') {
 					bool aRoundDone = false;
 					system("cls");
 					do {
-						aPickCard();
+						if (aPickNewCard == true) {
+
+						}
+						else {
+							aPickCard();
+						}
+						aPickNewCard = false;
 
 						if (aCard == 1) {
 							std::cout << "Dealer picked an ace";
@@ -200,18 +218,22 @@ int main() {
 							system("pause");
 							system("cls");
 						}
-
 					} while (aRoundDone == false);
 				}
 				else if (input == 'i') {
 					info();
 					system("pause");
 				}
+				else {
+					pPickNewCard = false;
+				}
 			}
 
 		} while (roundDone == false);
 		system("pause");
 		system("cls");
+
+		//Resets scores after a round is finished
 		aSum = 0;
 		pSum = 0;
 		if (pMoney < 10) {
